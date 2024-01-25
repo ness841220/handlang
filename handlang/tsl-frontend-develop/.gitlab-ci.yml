@@ -1,0 +1,211 @@
+variables:
+  # -----------------------------------專案打包參數-----------------------------------------------
+  BUILD_IMAGE: reg.yuntek.com.tw/common/node:14.18
+  PROJECT_DOMAIN: tsl-dev.yuntek.com.tw
+  PROJECT_PORT: 30076
+  #K8S上API專案Development名稱
+  API_SERVICE_NAME: common-api-develop
+  #SSR參數
+  USE_SSR: 1
+  INTERNAL_PORT: 3000
+  EXPOSE_PORT: 3000
+  LAUNCH_COMMAND: "start"
+  #---------------------------------------------------------------------------------------------
+  # ------------------------------------NGINX參數------------------------------------------------
+  SSL_CERTIFICATE_PATH: $YUNTEK_COM_TW_CERTIFICATE_PATH
+  SSL_KEY_PATH: $YUNTEK_COM_TW_CERTIFICATE_PEIVATE_KEY_PATH
+  NGINX_HOST: $DEPLOY_LOCAL_APPLICATION_SERVER_PRIVATE
+  NGINX_SSH_PORT: $DEPLOY_LOCAL_APPLICATION_SERVER_PORT
+  NGINX_SSH_USERNAME: $DEPLOY_LOCAL_APPLICATION_SERVER_USERNAME
+  INTERNAL_ACCESS: 1
+  PROXY_PASS_USE_HTTPS: 0
+  USE_LOAD_BANLANCE: 1
+  NODE_1: $K8S_LOCAL_PRIVATE_HOST_1
+  NODE_2: $K8S_LOCAL_PRIVATE_HOST_2
+  NODE_3: $K8S_LOCAL_PRIVATE_HOST_3
+  # 若不使用Load Banlance ,API Server位址
+  API_HOST: 127.0.0.1
+  #---------------------------------------------------------------------------------------------
+  # --------------------------------Kubernets打包參數--------------------------------------------
+  # Deploy
+  REPLICAS: 1
+  REG_CATEGORY: tsl
+  #--------------------------------------------------------------------------------------------
+  # --------------------------------Kubernets部署參數--------------------------------------------
+  # maven 打包使用的映象
+  MAVEM_IMAGE: reg.yuntek.com.tw/common/maven:latest
+  # k8s 部署使用的映象 
+  K8S_IMAGE: reg.yuntek.com.tw/common/kubectl:v1.20.1
+  # rsync 使用的映象
+  RSYNC_IMAGE: reg.yuntek.com.tw/common/apidoc-rsync-ssh:latest
+  # 專案在 k8s 中部署的名稱
+  SERVICE_NAME: ${CI_PROJECT_NAME}_${CI_COMMIT_BRANCH}
+  #REGISTRY網域與專案位址
+  REGISTRY_SERVER: $REGISTRY
+  REGISTRY_PROJECT_PATH: $REGISTRY_SERVER/$REG_CATEGORY/${CI_PROJECT_NAME}_${CI_COMMIT_BRANCH}:latest 
+  # 指定 maven 本地倉庫路徑，以便做快取
+  MAVEN_OPTS: "-Dmaven.repo.local=$CI_PROJECT_DIR/.m2/repository"
+  #--------------------------------------------------------------------------------------------
+
+services:
+  - name: reg.yuntek.com.tw/common/docker:19.03.12
+    alias: docker
+
+cache:
+  paths:
+    - node_modules/
+
+stages:
+  - package
+  - build
+  - deploy
+  - nginx
+
+.change_variable: &change_variable |
+  export GIT_SSL_NO_VERIFY=1
+  git clone -b project --single-branch https://$GITLAB_DEPLOY_USERNAME:$GITLAB_DEPLOY_PASSWORD@git.yuntek.com.tw/sre/deploy-files.git
+  cp ./deploy-files/nginx-k8s-for-shorturl.conf ./deploy-files/nginx.conf
+  cp ./deploy-files/nginx.conf ./nginx.conf
+  sed -i "s|{SERVICE_NAME}|'${SERVICE_NAME//_/-}'|g" ./deploy-files/kubernets.yml
+  sed -i "s|{EXPORT_PORT}|$PROJECT_PORT|g" ./deploy-files/kubernets.yml
+  sed -i "s|{REPLICAS}|$REPLICAS|g" ./deploy-files/kubernets.yml
+  sed -i "s|{REG_IMAGE_PATH}|$REGISTRY_PROJECT_PATH|g" ./deploy-files/kubernets.yml
+  sed -i "s|8080|$INTERNAL_PORT|g" ./deploy-files/kubernets.yml
+  sed -i "/volumeMounts:/d" ./deploy-files/kubernets.yml
+  sed -i "/nfs-share-drive/d" ./deploy-files/kubernets.yml
+  sed -i "/mountPath:/d" ./deploy-files/kubernets.yml
+  sed -i "/volumes:/d" ./deploy-files/kubernets.yml
+  sed -i "/nfs:/d" ./deploy-files/kubernets.yml
+  sed -i "/{NFS_SERVER_PATH}/d" ./deploy-files/kubernets.yml
+  sed -i "/{NFS_HOST_PRIVATE}/d" ./deploy-files/kubernets.yml
+  sed -i "s|{PROJECT_PORT}|$PROJECT_PORT|g" ./deploy-files/docker-compose.yml
+  sed -i "s|{PROJECT_NAME}|'${SERVICE_NAME//_/-}'|g" ./deploy-files/docker-compose.yml
+  sed -i "s|build: ./|image: $REGISTRY_PROJECT_PATH|g" ./deploy-files/docker-compose.yml
+  sed -i "s|:8080|:$INTERNAL_PORT|g" ./deploy-files/docker-compose.yml
+  sed -i "/volumes:/d" ./deploy-files/docker-compose.yml
+  sed -i "/{NFS_MOUNT_PATH}/d" ./deploy-files/docker-compose.yml
+  sed -i "s|3000|$EXPOSE_PORT|g" ./deploy-files/Dockerfile-SSR
+  sed -i "s|start:dev|$LAUNCH_COMMAND|g" ./deploy-files/Dockerfile-SSR
+  cp ./deploy-files/docker-compose.yml ./docker-compose.yml
+  cp ./deploy-files/Dockerfile-nginx ./Dockerfile
+  cp ./deploy-files/kubernets.yml ./kubernets.yml
+  if [ "$USE_SSR" == 1 ]; then
+  cp ./deploy-files/Dockerfile-SSR ./Dockerfile
+  fi
+  sed -i "s|{API_SERVICE_NAME}|$API_SERVICE_NAME|g" ./nginx.conf
+  sed -i "s|{API_SERVICE_PORT}|8080|g" ./nginx.conf
+  sed -i "s|{PROJECT_DOMAIN}|$PROJECT_DOMAIN|g" ./deploy-files/nginx-api.conf
+  sed -i "s|{SSL_CERTIFICATE_PATH}|$SSL_CERTIFICATE_PATH|g" ./deploy-files/nginx-api.conf
+  sed -i "s|{SSL_KEY_PATH}|$SSL_KEY_PATH|g" ./deploy-files/nginx-api.conf
+  if [ "$USE_LOAD_BANLANCE" == 1 ]; then
+  sed -i "s|{LOCAL_K8S_NGINX_LOAD_BANLANCE_UPSTREAM}|$LOCAL_K8S_NGINX_LOAD_BANLANCE_UPSTREAM|g" ./deploy-files/nginx-api.conf
+  sed -i "s|{K8S_LOCAL_PRIVATE_HOST_1}|$NODE_1|g" ./deploy-files/nginx-api.conf
+  sed -i "s|{K8S_LOCAL_PRIVATE_HOST_2}|$NODE_2|g" ./deploy-files/nginx-api.conf
+  sed -i "s|{K8S_LOCAL_PRIVATE_HOST_3}|$NODE_3|g" ./deploy-files/nginx-api.conf
+  sed -i "s|{PROJECT_PORT}|$PROJECT_PORT|g" ./deploy-files/nginx-api.conf
+  sed -i "s|{RANDOM}|$CI_COMMIT_SHORT_SHA|g" ./deploy-files/nginx-api.conf
+  else
+  sed -i "s|{LOCAL_K8S_NGINX_LOAD_BANLANCE_UPSTREAM}||g" ./deploy-files/nginx-api.conf
+  sed -i "s|{RANDOM}|$API_HOST:$PROJECT_PORT|g" ./deploy-files/nginx-api.conf
+  fi
+  if [ "$PROXY_PASS_USE_HTTPS" == 1 ]; then
+  sed -i "s|{S}|s|g" ./deploy-files/nginx-api.conf
+  sed -i "s|{API_SERVICE_PROTOCAL}|https|g" ./nginx.conf
+  else
+  sed -i "s|{S}||g" ./deploy-files/nginx-api.conf
+  sed -i "s|{API_SERVICE_PROTOCAL}|http|g" ./nginx.conf
+  fi
+  sed -i "s|{COMMIT_HASH}|$CI_COMMIT_SHA|g" ./deploy-files/nginx-api.conf
+  sed -i "s|{CommitTime}|$(git show -s --format=%ct $CI_COMMIT_SHA)|g" ./deploy-files/nginx-api.conf
+  if [ "$INTERNAL_ACCESS" == 1 ]; then
+  sed -i "s|{INTERNAL_ALLOW_IP}|$INTERNAL_ALLOW_IP|g" ./deploy-files/nginx-api.conf
+  else
+  sed -i "s|{INTERNAL_ALLOW_IP}||g" ./deploy-files/nginx-api.conf
+  fi
+  cp ./deploy-files/nginx-api.conf ./$PROJECT_DOMAIN
+  echo "-------------------------------------docker-compose.yml-------------------------------------------------"
+  cat ./deploy-files/docker-compose.yml
+  echo "#-------------------------------------------------------------------------------------------------------"
+  echo "----------------------------------------kubernets.yml---------------------------------------------------"
+  cat ./kubernets.yml
+  echo "#-------------------------------------------------------------------------------------------------------"
+  echo "-------------------------------------------Dockerfile---------------------------------------------------"
+  cat ./Dockerfile
+  echo "#-------------------------------------------------------------------------------------------------------"
+  echo "----------------------------------------$PROJECT_DOMAIN-------------------------------------------------"
+  cat ./$PROJECT_DOMAIN
+  echo "#-------------------------------------------------------------------------------------------------------"
+  echo "-------------------------------------------nginx.conf---------------------------------------------------"
+  cat ./nginx.conf
+  echo "#-------------------------------------------------------------------------------------------------------"
+
+.build_script: &build_script |
+  npm install sass-loader --save-dev
+  npm install node-sass --save-dev
+  npm install
+  npm run build
+
+# 打包
+package:
+  stage: package
+  image: $BUILD_IMAGE
+  script:
+    - echo "=============== npm package  ==============="
+    - export TARGET_ENV='develop'
+    - *change_variable
+  only:
+    - develop
+  artifacts:
+    paths:
+      - ./*
+
+    expire_in: 10min
+
+# 構建docker映象並推送到映象倉庫
+build:
+  stage: build
+  script:
+    - echo "=============== docker build image  ==============="
+    - docker build -t $REGISTRY_PROJECT_PATH .
+    - docker login -u $REGISTRY_USERNAME -p $REGISTRY_PASSWORD $REGISTRY_SERVER
+    - docker push $REGISTRY_PROJECT_PATH
+  only:
+    - develop
+
+# 使用 k8s 部署
+deploy:
+  stage: deploy
+  image: $K8S_IMAGE
+  # 構建 k8s 可執行環境
+  before_script:
+    - mkdir -p /etc/kubernetes
+    - echo "$K8S_LOCAL_ADMIN_CONF" >> /etc/kubernetes/admin.conf
+    - echo "export KUBECONFIG=/etc/kubernetes/admin.conf" >> ~/.bash_profile
+    - source ~/.bash_profile
+  script:
+    - export K8S_NS=develop
+    - echo "=============== deploy  ==============="
+    - if [ "$(kubectl get deployment -n $K8S_NS --insecure-skip-tls-verify=true | grep ${SERVICE_NAME//_/-} | awk '{print $1}')" ]; then
+    - kubectl set image deploy ${SERVICE_NAME//_/-} ${SERVICE_NAME//_/-}=$REGISTRY_PROJECT_PATH -n $K8S_NS --insecure-skip-tls-verify=true
+    - kubectl scale deployment ${SERVICE_NAME//_/-} --replicas=0 -n $K8S_NS --insecure-skip-tls-verify=true
+    - kubectl scale deployment ${SERVICE_NAME//_/-} --replicas=1 -n $K8S_NS --insecure-skip-tls-verify=true
+    - else
+    - mv kubernets.yml ${SERVICE_NAME//_/-}.yaml
+    - kubectl apply -f ${SERVICE_NAME//_/-}.yaml -n $K8S_NS --insecure-skip-tls-verify=true
+    - fi
+  only:
+    - develop
+
+# 設定Application Server Nginx
+nginx:
+  stage: nginx
+  image: $RSYNC_IMAGE
+  script:
+    - echo "=============== set-up nginx  ==============="
+    - mkdir -p ~/.ssh
+    - echo "$GITLAB_RUNNER_SSH_PRIVATE_KEY" > ~/.ssh/id_rsa
+    - chmod 700 ~/.ssh/id_rsa
+    - rsync -av --delete -e "ssh -p $NGINX_SSH_PORT -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null" ./$PROJECT_DOMAIN $NGINX_SSH_USERNAME@$NGINX_HOST:/etc/nginx/auto-generate-config/$PROJECT_DOMAIN
+    - ssh -p $NGINX_SSH_PORT -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null $NGINX_SSH_USERNAME@$NGINX_HOST "sudo nginx -t && sudo service nginx reload"
+  only:
+    - developx
