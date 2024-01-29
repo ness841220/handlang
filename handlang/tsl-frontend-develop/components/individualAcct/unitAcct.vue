@@ -67,11 +67,38 @@
       <div class="form_item">
         <el-form-item prop="telphone">
           <label for="telphone">電話號碼</label>
-          <el-input id="telphone" v-model="form.telphone" name="telphone" placeholder="範例：04-12345678" />
+          <el-col :span="7">
+            <!-- <el-form-item prop="telphoneFirst"> -->
+            <el-select id="telphoneFirst" v-model="form.telphoneFirst" placeholder="請選擇" name="telphoneFirst" popper-class="defaultSelect">
+              <el-option label="02" value="02" />
+              <el-option label="03" value="03" />
+              <el-option label="037" value="037" />
+              <el-option label="04" value="04" />
+              <el-option label="049" value="049" />
+              <el-option label="05" value="05" />
+              <el-option label="06" value="06" />
+              <el-option label="07" value="07" />
+              <el-option label="08" value="08" />
+              <el-option label="082" value="082" />
+              <el-option label="0826" value="0826" />
+              <el-option label="0836" value="0836" />
+              <el-option label="089" value="089" />
+            </el-select>
+            <!-- </el-form-item> -->
+            <!-- <el-input id="telphoneFirst" v-model="form.telphoneFirst" name="telphoneFirst" placeholder="範例：04" maxlength="3" /> -->
+          </el-col>
+          <el-col :span="2">
+            <div style="text-align:center;padding:10px;font-size: 25px;">
+              -
+            </div>
+          </el-col>
+          <el-col :span="15">
+            <el-input id="telphoneSecond" v-model="form.telphoneSecond" name="telphoneSecond" placeholder="範例：12345678分機123" maxlength="13" />
+          </el-col>
         </el-form-item>
         <el-form-item prop="cellphone">
           <label for="cellphone">手機號碼<p>(必填)</p></label>
-          <el-input id="cellphone" v-model="form.cellphone" inputmode="numeric" name="cellphone" />
+          <el-input id="cellphone" v-model="form.cellphone" inputmode="numeric" name="cellphone" placeholder="範例：0963047746"/>
         </el-form-item>
       </div>
       <p class="passtext">
@@ -161,6 +188,8 @@ export default {
         positionTitle: '',
         Email: '',
         telphone: '',
+        telphoneFirst: '',
+        telphoneSecond: '',
         cellphone: '',
         newsPass: '',
         pass: '',
@@ -178,7 +207,9 @@ export default {
       rules: {
         newsPass: [{ validator: newsPass, trigger: 'blur' }],
         pass: [{ validator: pass, trigger: 'blur' }],
-        telphone: [{ pattern: /\d{2}-\d{7}/, message: '電話號碼格式錯誤', trigger: 'blur' }],
+        // telphone: [{ pattern: /\d{2}-\d{7}/, message: '電話號碼格式錯誤', trigger: 'blur' }],
+        telphoneFirst: [{ pattern: /\d{3}/, message: '電話號碼格式錯誤', trigger: 'blur' }],
+        telphoneSecond: [{ pattern: /\d{8}/, message: '電話號碼格式錯誤', trigger: 'blur' }],
         cellphone: [{ required: true, pattern: /^[0][9]\d{8}$/, message: '手機號碼格式錯誤', trigger: 'blur' }]
       }
     }
@@ -204,7 +235,7 @@ export default {
             name: form.name,
             positionTitle: vm.closeDiv(form.positionTitle) !== false ? form.positionTitle : '',
             Email: form.Email,
-            telphone: vm.closeDiv(form.telphone) !== false ? form.telphone : '',
+            telphone: vm.nullreturn(form.telphoneFirst) + '-' + vm.nullreturn(form.telphoneSecond),
             cellphone: form.cellphone,
             password: form.newsPass,
             department: vm.closeDiv(form.department) !== false ? form.department : '',
@@ -256,6 +287,8 @@ export default {
         vm.form.positionTitle = data.positionTitle
         vm.form.Email = data.email
         vm.form.telphone = data.telphone
+        vm.form.telphoneFirst = data.telphone.split('-')[0]
+        vm.form.telphoneSecond = data.telphone.split('-')[1]
         vm.form.department = data.department
         vm.getCodeAsGroup(data.featureName)
         vm.form.feature = data.feature

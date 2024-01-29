@@ -216,7 +216,7 @@
         </el-form-item>
       </div>
       <p class="passtext">
-        (檔案大小限制為{{ fileMB }}MB，檔案格式僅支援doc、docx、xls、xlsx、pdf、odt、ods、odp、jpg、jpeg、bmp、gif、png、zip、7z，如無法成功上傳檔案，請將檔案寄至新北市手語翻譯暨同步聽打中心 ntcst@nad.org.tw或加LINE ID：0963047746傳送檔案。)
+        (檔案大小限制為{{ fileMB }}MB，檔案格式僅支援doc、docx、xls、xlsx、pdf、odt、ods、odp、jpg、jpeg、bmp、gif、png、zip、7z，如無法成功上傳檔案，請將檔案寄至新北市手語翻譯暨同步聽打中心 ntcst@nad.org.tw 或加LINE官方帳號：@ntpc0963047746傳送檔案。)
       </p>
       <div class="uploadfile" style="margin-top: 10px;">
         <div class="uploadfile_text">
@@ -840,7 +840,7 @@ export default {
         'jpg', 'jpeg', 'bmp', 'gif', 'png', '7z', 'docx', 'doc'
       ]
       if (!fileList.includes(fileName)) {
-        vm.defaultText = '檔案格式僅支援: doc、docx、xls、xlsx、pdf、odt、ods、odp、jpg、jpeg、bmp、gif、png、zip、7z，若系統上傳文件失敗，請將檔案直接mail至ntcst@nad.org.tw。'
+        vm.defaultText = '檔案格式僅支援: doc、docx、xls、xlsx、pdf、odt、ods、odp、jpg、jpeg、bmp、gif、png、zip、7z，如無法成功上傳檔案，請將檔案寄至新北市手語翻譯暨同步聽打中心 ntcst@nad.org.tw 或加LINE官方帳號：@ntpc0963047746傳送檔案。'
         vm.defaultId = 0
         this.defaultPopUps = true
         return false

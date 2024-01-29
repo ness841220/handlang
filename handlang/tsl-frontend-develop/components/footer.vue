@@ -24,21 +24,20 @@
       <div class="content">
         <div class="left">
           <p>受理時間：週一至週五8:30~17:30（不含例假日）</p>
-          <div class="severContent">
-            <p>服務專線：0800-365-324</p>
-            <p>電子信箱：ntcst@nad.org.tw</p>
-            <p>傳真：0800-365-524</p>
-            <p>手機/LINE帳號：0963047746</p>
-            <p>委辦單位：中華民國聾人協會</p>
-            <p>如有系統相關問題請寄信至signtext@ntpc.gov.tw</p>
-          </div>
+          <p>服務專線：0800-365-324</p>
+          <p>電子信箱：ntcst@nad.org.tw</p>
+          <p>手機/簡訊：0963-047-746</p>
+          <p>LINE官方帳號：@ntpc0963047746</p>
+          <p>傳真：0800-365-524</p>
+          <p>委辦單位：中華民國聾人協會</p>
+          <p>如有系統相關問題請寄信至signtext@ntpc.gov.tw</p>
         </div>
         <div class="qrimg">
           <img src="~/static/img/LINE.png" alt="「新北市社會局手語翻譯暨同步聽打中心Line QRcode」">
         </div>
         <div class="right">
           <a id="a_z" href="#a_z" accesskey="Z" class="location">:::</a>
-          <p>外部網站</p>
+          <p>外部網站：</p>
           <a href="https://www.sw.ntpc.gov.tw" title="新北市政府社會局" target="_blank">新北市政府社會局(另開視窗)</a>
           <a href="https://www.facebook.com/goodday.ntpc/?locale=zh_TW" title="新北市政府社會局FB" target="_blank">新北市政府社會局FB<img src="~/static/img/Facebook.png" alt="">(另開視窗)</a>
           <a href="https://service.ntpc.gov.tw/service/Index.action" title="新北市政府雲端櫃台" target="_blank">新北市政府雲端櫃台(另開視窗)</a>
@@ -247,8 +246,8 @@ export default {
         margin: .5% 0;
         font-size: clamp(min(112.5%), pc(20), max(125%));
         img{
-          width: 40px;
-          height: 40px;
+          width: 30px;
+          height: 30px;
         }
       }
     }
@@ -261,16 +260,6 @@ export default {
       img{
         width: 100%;
         height: 100%;
-      }
-    }
-    .severContent{
-      max-width: 700px;
-      p{
-        word-break:break-all;
-        font-size: clamp(min(112.5%), pc(20), max(125%));
-        &:nth-child(2n+1){
-          margin-right: 2%;
-        }
       }
     }
     .icon{
@@ -296,13 +285,6 @@ export default {
       .right{
         width: 100%;
         max-width: 700px;
-      }
-      .severContent{
-        flex-direction: column;
-        align-items: flex-start;
-        p{
-          width: 100%;
-        }
       }
       .qrimg{
         margin: 20px 0;

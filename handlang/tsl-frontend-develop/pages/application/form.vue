@@ -169,7 +169,7 @@
             id="caseType"
             v-model="form.caseType"
             name="caseType"
-            placeholder=""
+            placeholder="請選擇"
             popper-class="defaultSelect"
             @change="totalHoursPopUps(form.caseType)"
           >
@@ -178,7 +178,7 @@
         </el-form-item>
         <el-form-item>
           <label for="applyNote">服務事由</label>
-          <el-input id="applyNote" v-model="form.applyNote" name="applyNote" />
+          <el-input id="applyNote" v-model="form.applyNote" name="applyNote" placeholder="範例：胃腸肝膽科(2診，王小明醫生，3號)" />
         </el-form-item>
       </div>
       <div v-if="form.caseType === 'CC01'" class="applicationform_ex">
@@ -186,7 +186,7 @@
       </div>
       <el-form-item>
         <label for="location"><div>服務地點<span style="color: #0048C2;">（如：台大醫院腸胃科、教室A102）</span></div></label>
-        <el-input id="location" v-model="form.location" name="location" />
+        <el-input id="location" v-model="form.location" name="location" placeholder="範例：台北長庚醫院 4樓後棟" />
       </el-form-item>
       <p class="mark">
         服務地址
@@ -199,7 +199,7 @@
               id="city"
               v-model="form.city"
               name="city"
-              placeholder=""
+              placeholder="請選擇"
               popper-class="defaultSelect"
               @change="getByType(form.city);form.dist = ''"
             >
@@ -215,7 +215,7 @@
         </div>
         <el-form-item>
           <label for="address">地址</label>
-          <el-input id="address" v-model="form.address" name="address" placeholder="XX街XX號" />
+          <el-input id="address" v-model="form.address" name="address" />
         </el-form-item>
       </div>
       <el-form-item>
@@ -352,7 +352,7 @@
         </el-form-item>
       </div>
       <p class="passtext">
-        (檔案大小限制為{{ fileMB }}MB，檔案格式僅支援doc、docx、xls、xlsx、pdf、odt、ods、odp、jpg、jpeg、bmp、gif、png、zip、7z，如無法成功上傳檔案，請將檔案寄至新北市手語翻譯暨同步聽打中心 ntcst@nad.org.tw或加LINE ID：0963047746傳送檔案。)
+        (檔案大小限制為{{ fileMB }}MB，檔案格式僅支援doc、docx、xls、xlsx、pdf、odt、ods、odp、jpg、jpeg、bmp、gif、png、zip、7z，如無法成功上傳檔案，請將檔案寄至新北市手語翻譯暨同步聽打中心 ntcst@nad.org.tw 或加LINE官方帳號：@ntpc0963047746傳送檔案。)
       </p>
       <div class="uploadfile">
         <div class="uploadfile_text">
@@ -1031,7 +1031,7 @@ export default {
         'jpg', 'jpeg', 'bmp', 'gif', 'png', '7z', 'docx', 'doc'
       ]
       if (!fileList.includes(fileName)) {
-        vm.defaultText = '檔案格式僅支援: doc、docx、xls、xlsx、pdf、odt、ods、odp、jpg、jpeg、bmp、gif、png、zip、7z，若系統上傳文件失敗，請將檔案直接mail至ntcst@nad.org.tw。'
+        vm.defaultText = '檔案格式僅支援: doc、docx、xls、xlsx、pdf、odt、ods、odp、jpg、jpeg、bmp、gif、png、zip、7z，如無法成功上傳檔案，請將檔案寄至新北市手語翻譯暨同步聽打中心 ntcst@nad.org.tw 或加LINE官方帳號：@ntpc0963047746傳送檔案。'
         vm.defaultId = 0
         this.defaultPopUps = true
         return false
