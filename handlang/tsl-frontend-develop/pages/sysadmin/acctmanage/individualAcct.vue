@@ -19,7 +19,7 @@
       <div class="form_item">
         <el-form-item prop="name" :rules="[{ required: true, message: '請輸入姓名', trigger: 'blur' }]">
           <label for="name">姓名<p>(必填)</p></label>
-          <el-input id="name" v-model="form.name" name="name" :disabled="!editAcct?false:true" />
+          <el-input id="name" v-model="form.name" name="name" :disabled="!editAcct?false:true" placeholder="範例：王小明" />
         </el-form-item>
         <el-form-item prop="feature" :rules="[{ required: true, message: '請選擇性別', trigger: 'change' }]">
           <label for="feature">性別<p>(必填)</p></label>
@@ -32,7 +32,7 @@
       <div v-if="!editAcct" class="form_item one">
         <el-form-item prop="verifyId">
           <label for="verifyId">身分證字號/居留證號<p>(必填)</p></label>
-          <el-input v-if="!isPassed" id="verifyId" v-model="form.verifyId" name="verifyId" placeholder="這將會是您的帳號" />
+          <el-input v-if="!isPassed" id="verifyId" v-model="form.verifyId" name="verifyId" placeholder="範例：A123456789" />
           <el-input
             v-else
             id="verifyId"
@@ -56,11 +56,38 @@
       <div class="form_item">
         <el-form-item prop="telphone">
           <label for="telphone">電話號碼</label>
-          <el-input id="telphone" v-model="form.telphone" name="telphone" placeholder="範例：04-12345678" />
+          <el-col :span="7">
+            <!-- <el-form-item prop="telphoneFirst"> -->
+            <el-select id="telphoneFirst" v-model="form.telphoneFirst" placeholder="請選擇" name="telphoneFirst" popper-class="defaultSelect">
+              <el-option label="02" value="02" />
+              <el-option label="03" value="03" />
+              <el-option label="037" value="037" />
+              <el-option label="04" value="04" />
+              <el-option label="049" value="049" />
+              <el-option label="05" value="05" />
+              <el-option label="06" value="06" />
+              <el-option label="07" value="07" />
+              <el-option label="08" value="08" />
+              <el-option label="082" value="082" />
+              <el-option label="0826" value="0826" />
+              <el-option label="0836" value="0836" />
+              <el-option label="089" value="089" />
+            </el-select>
+            <!-- </el-form-item> -->
+            <!-- <el-input id="telphoneFirst" v-model="form.telphoneFirst" name="telphoneFirst" placeholder="範例：04" maxlength="3" /> -->
+          </el-col>
+          <el-col :span="2">
+            <div style="text-align:center;padding:10px;font-size: 25px;">
+              -
+            </div>
+          </el-col>
+          <el-col :span="15">
+            <el-input id="telphoneSecond" v-model="form.telphoneSecond" name="telphoneSecond" placeholder="範例：12345678分機123" maxlength="13" />
+          </el-col>
         </el-form-item>
         <el-form-item prop="cellphone">
           <label for="cellphone">手機號碼<p>(必填)</p></label>
-          <el-input id="cellphone" v-model="form.cellphone" inputmode="numeric" name="cellphone" />
+          <el-input id="cellphone" v-model="form.cellphone" inputmode="numeric" name="cellphone" placeholder="範例：0963047746" />
         </el-form-item>
       </div>
       <div class="form_item">
@@ -70,7 +97,7 @@
         </el-form-item>
         <el-form-item prop="Email" :rules="[{ type: 'email', message: '請輸入正確的電子信箱', trigger: ['blur', 'change'] }]">
           <label for="Email">電子信箱</label>
-          <el-input id="Email" v-model="form.Email" name="Email" />
+          <el-input id="Email" v-model="form.Email" name="Email" placeholder="範例：ntcst@nad.org.tw" />
         </el-form-item>
       </div>
       <p class="mark">
@@ -84,7 +111,7 @@
               id="city"
               v-model="form.city"
               name="city"
-              placeholder=""
+              placeholder="請選擇"
               popper-class="defaultSelect"
               @change="getByType(form.city);"
             >
@@ -100,7 +127,7 @@
         </div>
         <el-form-item>
           <label for="address">地址</label>
-          <el-input id="address" v-model="form.address" placeholder="XX街XX號" name="address" />
+          <el-input id="address" v-model="form.address" name="address" />
         </el-form-item>
       </div>
       <div class="form_item">
@@ -216,7 +243,7 @@
         </el-form-item>
       </div>
       <p class="passtext">
-        (檔案大小限制為{{ fileMB }}MB，檔案格式僅支援doc、docx、xls、xlsx、pdf、odt、ods、odp、jpg、jpeg、bmp、gif、png、zip、7z，如無法成功上傳檔案，請將檔案寄至新北市手語翻譯暨同步聽打中心 ntcst@nad.org.tw或加LINE ID：0963047746傳送檔案。)
+        (檔案大小限制為{{ fileMB }}MB，檔案格式僅支援doc、docx、xls、xlsx、pdf、odt、ods、odp、jpg、jpeg、bmp、gif、png、zip、7z，如無法成功上傳檔案，請將檔案寄至新北市手語翻譯暨同步聽打中心 ntcst@nad.org.tw 或加LINE官方帳號：@ntpc0963047746傳送檔案。)
       </p>
       <div class="uploadfile" style="margin-top: 10px;">
         <div class="uploadfile_text">
@@ -369,6 +396,8 @@ export default {
         feature: '',
         verifyId: '',
         telphone: '',
+        telphoneFirst: '',
+        telphoneSecond: '',
         cellphone: '',
         lineId: '',
         Email: '',
@@ -401,7 +430,9 @@ export default {
       loading: false,
       rules: {
         verifyId: [{ required: true, message: '請輸入身分證字號/居留證號', trigger: 'blur' }, { pattern: /^[A-Z]\d{9}$|^[A-Z][A-Z]\d{8}$/, message: '身分證字號/居留證號格式錯誤', trigger: 'blur' }],
-        telphone: [{ pattern: /\d{2}-\d{7}/, message: '電話號碼格式錯誤', trigger: 'blur' }],
+        // telphone: [{ pattern: /\d{2}-\d{7}/, message: '電話號碼格式錯誤', trigger: 'blur' }],
+        telphoneFirst: [{ pattern: /\d{3}/, message: '電話號碼格式錯誤', trigger: 'blur' }],
+        telphoneSecond: [{ pattern: /\d{8}/, message: '電話號碼格式錯誤', trigger: 'blur' }],
         cellphone: [{ required: true, pattern: /^[0][9]\d{8}$/, message: '手機號碼格式錯誤', trigger: 'blur' }]
       }
     }
@@ -447,6 +478,8 @@ export default {
         vm.form.feature = data.feature
         vm.form.verifyId = data.verifyId
         vm.form.telphone = data.telphone
+        vm.form.telphoneFirst = data.telphone.split('-')[0]
+        vm.form.telphoneSecond = data.telphone.split('-')[1]
         vm.form.cellphone = data.cellphone
         vm.form.lineId = data.lineId
         vm.form.Email = data.email
@@ -537,7 +570,7 @@ export default {
         name: vm.nullreturn(form.name),
         feature: form.feature,
         verifyId: form.verifyId,
-        telphone: vm.nullreturn(form.telphone),
+        telphone: vm.nullreturn(form.telphoneFirst) + '-' + vm.nullreturn(form.telphoneSecond),
         cellphone: form.cellphone,
         lineId: vm.nullreturn(form.lineId),
         Email: vm.nullreturn(form.Email),
@@ -683,7 +716,7 @@ export default {
         name: form.name,
         feature: form.feature,
         verifyId: form.verifyId,
-        telphone: form.telphone,
+        telphone: vm.nullreturn(form.telphoneFirst) + '-' + vm.nullreturn(form.telphoneSecond),
         cellphone: form.cellphone,
         lineId: form.lineId,
         Email: form.Email,
@@ -840,7 +873,7 @@ export default {
         'jpg', 'jpeg', 'bmp', 'gif', 'png', '7z', 'docx', 'doc'
       ]
       if (!fileList.includes(fileName)) {
-        vm.defaultText = '檔案格式僅支援: doc、docx、xls、xlsx、pdf、odt、ods、odp、jpg、jpeg、bmp、gif、png、zip、7z，若系統上傳文件失敗，請將檔案直接mail至ntcst@nad.org.tw。'
+        vm.defaultText = '檔案格式僅支援: doc、docx、xls、xlsx、pdf、odt、ods、odp、jpg、jpeg、bmp、gif、png、zip、7z，如無法成功上傳檔案，請將檔案寄至新北市手語翻譯暨同步聽打中心 ntcst@nad.org.tw 或加LINE官方帳號：@ntpc0963047746傳送檔案。'
         vm.defaultId = 0
         this.defaultPopUps = true
         return false

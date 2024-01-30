@@ -1,17 +1,36 @@
 diff --git a/node_modules/element-ui/lib/element-ui.common.js b/node_modules/element-ui/lib/element-ui.common.js
-index 6209b8b..3ee1f56 100644
+index 6209b8b..61b9390 100644
 --- a/node_modules/element-ui/lib/element-ui.common.js
 +++ b/node_modules/element-ui/lib/element-ui.common.js
-@@ -14660,7 +14660,7 @@ var pickervue_type_template_id_79ae069f_render = function() {
+@@ -14660,12 +14660,26 @@ var pickervue_type_template_id_79ae069f_render = function() {
                size: _vm.pickerSize,
                name: _vm.name,
                placeholder: _vm.placeholder,
 -              value: _vm.displayValue,
-+              value: _vm.type=="time"?_vm.displayValue:(_vm.displayValue ==""?"YYY/MM/DD": parseInt(_vm.displayValue.substring(0,4))-1911+_vm.displayValue.substring(4)),
++              value: _vm.type == "time" ?_vm.displayValue
++                                        :(_vm.displayValue == ""
++                                          ?"YYY/MM/DD"
++                                          : _vm.displayValue.split('/').length != 3
++                                            ? _vm.displayValue
++                                            : Number(_vm.displayValue.split('/')[0]) - 1911 
++                                              +'/' 
++                                              +_vm.displayValue.split('/')[1] 
++                                              +'/' 
++                                              +_vm.displayValue.split('/')[2]
++                                        ),
                validateEvent: false
              },
              on: {
-@@ -15942,7 +15942,7 @@ var datevue_type_template_id_2440d4ea_render = function() {
+               focus: _vm.handleFocus,
+               input: function(value) {
++                if(value.split('/').length == 3){
++                  value = Number(value.split('/')[0].substring(0,3)) + 1911 + '/' + value.split('/')[1].substring(0,2) + '/' + value.split('/')[2].substring(0,2)
++                }
++                
+                 return (_vm.userInput = value)
+               },
+               change: _vm.handleChange
+@@ -15942,7 +15956,7 @@ var datevue_type_template_id_2440d4ea_render = function() {
                          attrs: { role: "button" },
                          on: { click: _vm.showYearPicker }
                        },
@@ -20,7 +39,7 @@ index 6209b8b..3ee1f56 100644
                      ),
                      _c(
                        "span",
-@@ -17348,7 +17348,7 @@ var year_tablevue_type_script_lang_js_datesInYear = function datesInYear(year) {
+@@ -17348,7 +17362,7 @@ var year_tablevue_type_script_lang_js_datesInYear = function datesInYear(year) {
  
    computed: {
      startYear: function startYear() {
@@ -29,7 +48,7 @@ index 6209b8b..3ee1f56 100644
      }
    },
  
-@@ -17370,7 +17370,7 @@ var year_tablevue_type_script_lang_js_datesInYear = function datesInYear(year) {
+@@ -17370,7 +17384,7 @@ var year_tablevue_type_script_lang_js_datesInYear = function datesInYear(year) {
        var target = event.target;
        if (target.tagName === 'A') {
          if (Object(dom_["hasClass"])(target.parentNode, 'disabled')) return;
