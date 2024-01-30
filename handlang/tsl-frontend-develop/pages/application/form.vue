@@ -750,7 +750,7 @@ export default {
         applyType: vm.langtsl === true ? '1' : '2',
         caseStatus: 'WIT',
         applyName: form.name,
-        applycategory: vm.TSLform.acctType.toString(),
+        applycategory: form.acctType.toString(),
         caseNum: ''
       }
       const res = await frontendApi.applycase_apply(obj)

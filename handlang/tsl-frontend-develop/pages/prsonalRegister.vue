@@ -231,8 +231,6 @@
                   v-model="form.expirydate"
                   type="date"
                   name="expirydate"
-                  placeholder="yyyy/MM/dd"
-                  value-format="yyyy/MM/dd"
                   format="yyyy/MM/dd"
                   :disabled="form.expiryType.includes(0)"
                 />
